@@ -1,25 +1,22 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 app.use(express.json());
+app.use(cors());
 
-app.get('/', (req, res) => {
-  res.send('Hello from my first server!');
-});
+let tasks = ['Wake up', 'Study React'];
 
-app.get('/about', (req, res) => {
-  res.send('This is the about page');
-});
-
-app.get('/contact', (req, res) => {
-  res.send('This is the contact page');
+app.get('/tasks', (req, res) => {
+  res.json(tasks);
 });
 
 app.post('/tasks', (req, res) => {
-  const task = req.body.task;
-  res.send('Task received: ' + task);
+  const newTask = req.body.task;
+  tasks.push(newTask);
+  res.json(tasks);
 });
 
 app.listen(5000, () => {
-  console.log('Server is running on port 5000');
+  console.log('Server running on port 5000');
 });
