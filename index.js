@@ -10,6 +10,7 @@ const pool = new Pool({
   password: 'P@SS_wo6d',
   port: 5432,
 });
+
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost:27017/todoapp');
@@ -21,6 +22,9 @@ const Task = mongoose.model('Task', taskSchema);
 
 app.use(express.json());
 app.use(cors());
+const authRoutes = require('./auth');
+app.use('/auth', authRoutes);
+
 
 app.get('/tasks', async (req, res) => {
   const result = await pool.query('SELECT * FROM tasks');
