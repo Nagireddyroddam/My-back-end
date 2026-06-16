@@ -40,6 +40,20 @@ router.post('/login', async (req, res) => {
   const token = jwt.sign({ username }, 'secretkey');
   res.json({ token });
 });
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.json({ message: 'No token provided' });
+  }
+  jwt.verify(token, 'secretkey', (err, decoded) => {
+    if (err) {
+      return res.json({ message: 'Invalid token' });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
+module.exports = { router, verifyToken };
 
 
-module.exports = router;
