@@ -4,16 +4,15 @@ const cors = require('cors');
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'todoapp',
-  password: 'P@SS_wo6d',
-  port: 5432,
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
 });
-
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/todoapp');
+mongoose.connect('mongodb+srv://Nagireddy:P%40SS_wo6d@cluster0.fir0ilj.mongodb.net/todoapp?appName=Cluster0');
 const taskSchema = new mongoose.Schema({
   task: String
 });
