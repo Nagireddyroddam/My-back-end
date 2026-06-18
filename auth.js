@@ -2,36 +2,38 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
+const { Pool } = require('pg');
 
-const userSchema = new mongoose.Schema({
-  username: String,
-  password: String
+const pool = new Pool({
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
 });
-
-const User = mongoose.model('User', userSchema);
 
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
-  
-  const existingUser = await User.findOne({ username });
-  if (existingUser) {
+
+  const existing = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+  if (existing.rows.length > 0) {
     return res.json({ message: 'Username already exists' });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ username, password: hashedPassword });
-  await user.save();
+  await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hashedPassword]);
   res.json({ message: 'User registered successfully' });
 });
+
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
-  if (!user) {
+  const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+  if (result.rows.length === 0) {
     return res.json({ message: 'User not found' });
   }
 
+  const user = result.rows[0];
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.json({ message: 'Wrong password' });
@@ -40,6 +42,7 @@ router.post('/login', async (req, res) => {
   const token = jwt.sign({ username }, 'secretkey');
   res.json({ token });
 });
+
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) {
@@ -55,5 +58,3 @@ const verifyToken = (req, res, next) => {
 };
 
 module.exports = { router, verifyToken };
-
-
