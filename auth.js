@@ -15,20 +15,20 @@ const pool = new Pool({
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
-  const existing = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+  const existing = await pool.query('SELECT * FROM "user" WHERE username = $1', [username]);
   if (existing.rows.length > 0) {
     return res.json({ message: 'Username already exists' });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hashedPassword]);
+  await pool.query('INSERT INTO "user" (username, password) VALUES ($1, $2)', [username, hashedPassword]);
   res.json({ message: 'User registered successfully' });
 });
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+  const result = await pool.query('SELECT * FROM "user" WHERE username = $1', [username]);
   if (result.rows.length === 0) {
     return res.json({ message: 'User not found' });
   }
