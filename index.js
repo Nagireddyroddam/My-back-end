@@ -17,7 +17,7 @@ app.use(cors());
 const { router: authRoutes, verifyToken } = require('./auth');
 app.use('/auth', authRoutes);
 
-app.get('/tasks', verifyToken, async (req, res) => {
+app.get('/tasks',  async (req, res) => {
   const result = await pool.query('SELECT * FROM tasks');
   res.json(result.rows);
 });
